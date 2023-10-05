@@ -1,5 +1,6 @@
 -d out
 src/Main.java
+src/service_provider/ServiceProvider.java
 src/server/Server.java
 src/router/Route.java
 src/router/Router.java
