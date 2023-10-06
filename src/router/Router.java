@@ -2,27 +2,53 @@ package router;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import service_provider.ServiceProvider;
+
 public class Router {
-    private static Map<String, Class<?>> routeClasses;
+    private static Map<String, Class<? extends Page>> routeClasses;
 
     public static void initializeRouter() {
-        Class<?>[] classes = classPathsToClasses(getAllClassPaths());
-        classes = filterByClassAnnotation(classes, Route.class);
+        List<Class<?>> classes = classPathsToClasses(getAllClassPaths());
+        List<Class<? extends Page>> filteredClasses = filterByAnnotationAndInterface(classes, Page.class, Route.class);
 
         Router.routeClasses = new HashMap<>(); 
-        for (Class<?> c : classes) {
+        for (Class<? extends Page> c : filteredClasses) {
             Route routeAnnotation = (Route)c.getAnnotation(Route.class);
             Router.routeClasses.put(routeAnnotation.path(), c);
         }
     }
 
-    private static String[] getAllClassPaths() {
+    public static Page getPage(ServiceProvider provider, String route) throws Exception {
+        Class<? extends Page> pageClass = routeClasses.get(route);
+
+        if (pageClass == null) pageClass = routeClasses.get("*");
+
+        Page page = createInstance(provider, pageClass);
+        return page;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T createInstance(ServiceProvider provider, Class<? extends T> clazz) {
+        Constructor<?>[] ctors = clazz.getConstructors();
+        Object obj;
+        try {
+            obj = provider.invokeFirstConstructor(ctors);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return (T)obj;
+    }
+
+    private static List<String> getAllClassPaths() {
         List<String> classPaths = new ArrayList<>();
         String cwd = System.getProperty("user.dir");
         String cp = "\\out";
@@ -41,10 +67,10 @@ public class Router {
             }
         }
         
-        return classPaths.toArray(new String[0]);
+        return classPaths;
     }
 
-    private static Class<?>[] classPathsToClasses(String[] classPaths)  {
+    private static List<Class<?>> classPathsToClasses(List<String> classPaths)  {
         List<Class<?>> classes = new ArrayList<>();
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         for (String cp : classPaths) {
@@ -54,16 +80,36 @@ public class Router {
                 System.out.println("Couldn't add class at class path: " + cp);
             }
         }
-        return classes.toArray(new Class<?>[0]);
+
+        return classes;
     }
 
-    private static <T extends Annotation> Class<?>[] filterByClassAnnotation(Class<?>[] classes, Class<T> annotationType) {
-        List<Class<?>> filteredClasses = new ArrayList<>();
-        for (Class<?> c : classes) {
+    private static <T, A extends Annotation> List<Class<? extends T>> filterByAnnotation(List<Class<? extends T>> classes, Class<A> annotationType) {
+        List<Class<? extends T>> filteredClasses = new ArrayList<>();
+        for (Class<? extends T> c : classes) {
             if (c.getAnnotation(annotationType) != null) {
                 filteredClasses.add(c);
             }
         }
-        return filteredClasses.toArray(new Class<?>[0]);
+        
+        return filteredClasses;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> List<Class<? extends T>> filterByInterface(List<Class<?>> classes, Class<T> interfaze) {
+        List<Class<? extends T>> classesImplementingInterfaze = new ArrayList<>();
+        for (Class<?> clazz : classes) {
+            if (interfaze.isAssignableFrom(clazz)) {
+                classesImplementingInterfaze.add((Class<? extends T>) clazz);
+            }
+        }
+
+        return classesImplementingInterfaze;
+    }
+
+    private static <T, A extends Annotation> List<Class<? extends T>> filterByAnnotationAndInterface(List<Class<?>> classes, Class<T> interfaze, Class<A> annotation) {
+        List<Class<? extends T>> filteredClasses = filterByInterface(classes, interfaze);
+        filteredClasses = filterByAnnotation(filteredClasses, annotation);
+        return filteredClasses;
     }
 }

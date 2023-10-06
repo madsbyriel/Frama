@@ -1,12 +1,23 @@
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import router.Page;
+import router.Router;
 import server.Server;
+import service_provider.ServiceProvider;
+import services.cookies.CookieManager;
+import services.cookies.ICookieManager;
 
 public class Main {
     public static void main(String[] args) {
+        System.out.println("Initializing router...");
+        Router.initializeRouter();
+        System.out.println("Done initializing router.");
+
         Server server = null;
         try {
             server = new Server("localhost", 31415, 20);
@@ -16,22 +27,5 @@ public class Main {
         }
 
         server.startServer(); 
-        server.onRequestReceived(exchange -> routeHandler(exchange));
-    }
-
-    private static void routeHandler(HttpExchange exchange) throws IOException {
-        basicResponse(exchange);
-    }
-
-    private static void basicResponse(HttpExchange exchange) throws IOException  {
-        URI uri = exchange.getRequestURI();
-        System.out.println(uri.toString());
-        
-        String response = "PATH: " + uri.getPath() + "\n" 
-            + "QUERY: " + uri.getQuery() + "\n";
-        
-        exchange.sendResponseHeaders(200, response.length());
-        exchange.getResponseBody().write(response.getBytes());
-        exchange.close();
     }
 }

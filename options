@@ -1,6 +1,12 @@
 -d out
 src/Main.java
+src/testpages/DebugPage.java
+src/testpages/Index.java
+src/testpages/Wildcard.java
 src/service_provider/ServiceProvider.java
+src/services/cookies/CookieManager.java
+src/services/cookies/ICookieManager.java
 src/server/Server.java
+src/router/Page.java
 src/router/Route.java
 src/router/Router.java
