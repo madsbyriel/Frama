@@ -9,43 +9,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import service_provider.IServiceProvider;
 import service_provider.ServiceProvider;
+import service_provider.ServiceProvider2;
 
 public class Router {
-    private static Map<String, Class<? extends Page>> routeClasses;
+    private static Map<String, Class<? extends Page>> pageClasses;
 
     public static void initializeRouter() {
         List<Class<?>> classes = classPathsToClasses(getAllClassPaths());
         List<Class<? extends Page>> filteredClasses = filterByAnnotationAndInterface(classes, Page.class, Route.class);
 
-        Router.routeClasses = new HashMap<>(); 
+        Router.pageClasses = new HashMap<>(); 
         for (Class<? extends Page> c : filteredClasses) {
             Route routeAnnotation = (Route)c.getAnnotation(Route.class);
-            Router.routeClasses.put(routeAnnotation.path(), c);
+            Router.pageClasses.put(routeAnnotation.path(), c);
         }
     }
 
-    public static Page getPage(ServiceProvider provider, String route) throws Exception {
-        Class<? extends Page> pageClass = routeClasses.get(route);
+    public static Page getPage(IServiceProvider provider, String route) throws Exception {
+        Class<? extends Page> pageClass = pageClasses.get(route);
+        
+        if (pageClass == null) pageClass = pageClasses.get("*");
 
-        if (pageClass == null) pageClass = routeClasses.get("*");
+        Page page = provider.createObjectFromServices(pageClass);
 
-        Page page = createInstance(provider, pageClass);
         return page;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T createInstance(ServiceProvider provider, Class<? extends T> clazz) {
-        Constructor<?>[] ctors = clazz.getConstructors();
-        Object obj;
-        try {
-            obj = provider.invokeFirstConstructor(ctors);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-
-        return (T)obj;
     }
 
     private static List<String> getAllClassPaths() {

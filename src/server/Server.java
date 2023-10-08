@@ -2,59 +2,41 @@ package server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import router.Page;
 import router.Router;
-import service_provider.ServiceProvider;
+import service_provider.IServiceProvider;
+import service_provider.ServiceProvider2;
+import services.cookies.CookieManager;
+import services.cookies.ICookieManager;
 
 public class Server {
     private HttpServer server;
+    private IServiceProvider serviceProvider;
     
     public Server(String hostname, int port, int backlog) throws IOException {
         this.server = HttpServer.create(new InetSocketAddress(hostname, port), backlog);
+        this.serviceProvider = new ServiceProvider2();
     }
 
     public void startServer() {
-        server.createContext("/", exchange -> routeHandler(exchange));
         this.server.start();
+        server.createContext("/", exchange -> routeHandler(exchange));
     }
 
     private void routeHandler(HttpExchange exchange) {
-        ServiceProvider serviceProvider = ServiceProvider.getScopedServiceProvider(exchange);
-        Page p = null;
         try {
-            p = Router.getPage(serviceProvider, exchange.getRequestURI().getPath());
+            IServiceProvider pageServiceProvider = new ServiceProvider2();
+            pageServiceProvider.addTransientService(HttpExchange.class, HttpExchange.class, exchange);
+            pageServiceProvider.addTransientService(IServiceProvider.class, ServiceProvider2.class);
+            pageServiceProvider.addTransientService(ICookieManager.class, CookieManager.class);
+            Page page = Router.getPage(pageServiceProvider, exchange.getRequestURI().getPath());
+            page.servePage();
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
-        p.servePage();
-    }
-
-    private void debugResponse(HttpExchange exchange) throws IOException  {
-        URI uri = exchange.getRequestURI();
-        
-        List<Object> debugList = new ArrayList<>();
-        debugList.add("PATH: " + uri.getPath());
-        debugList.add("QUERY: " + uri.getQuery());
-
-        String response = "";
-        for (Object obj : debugList) {
-            response += obj.toString() + "\n";
-        }
-
-        exchange.sendResponseHeaders(200, response.length());
-        exchange.getResponseBody().write(response.getBytes());
-        exchange.close();
-    }
-
-    public interface OnRequestReceivedDel {
-        void onRequestReceived(HttpExchange exchange) throws IOException;
     }
 }

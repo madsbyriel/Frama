@@ -6,9 +6,15 @@ import java.util.List;
 import com.sun.net.httpserver.HttpExchange;
 
 public class CookieManager implements ICookieManager {
+    private HttpExchange exchange;
+
+    public CookieManager(HttpExchange exchange) {
+        this.exchange = exchange;
+    }
+
     @Override
-    public long getSessionId(HttpExchange exchange) {
-        String cookieVal = getCookieValue(exchange, "sessionId");
+    public long getSessionId() {
+        String cookieVal = getCookieValue("sessionId");
         if (cookieVal == null) return -1;
 
         try {
@@ -20,7 +26,7 @@ public class CookieManager implements ICookieManager {
     }
 
     @Override
-    public String getCookieValue(HttpExchange exchange, String name) {
+    public String getCookieValue(String name) {
         String cookies = exchange.getRequestHeaders().getFirst("Cookie");
         if (cookies == null) return null; 
         
@@ -35,7 +41,7 @@ public class CookieManager implements ICookieManager {
     }
 
     @Override
-    public void setCookie(HttpExchange exchange, String name, Object obj, int maxAge) {
+    public void setCookie(String name, Object obj, int maxAge) {
         List<String> cookies = exchange.getResponseHeaders().get("Set-Cookie");
         if (cookies == null) {
             cookies = new ArrayList<>();
@@ -46,7 +52,7 @@ public class CookieManager implements ICookieManager {
     }
 
     @Override
-    public void setCookie(HttpExchange exchange, String name, Object obj) {
+    public void setCookie(String name, Object obj) {
         List<String> cookies = exchange.getResponseHeaders().get("Set-Cookie");
         if (cookies == null) {
             cookies = new ArrayList<>();

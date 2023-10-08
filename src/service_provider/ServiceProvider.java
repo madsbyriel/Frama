@@ -19,7 +19,7 @@ public class ServiceProvider {
     static {
         staticServices = new HashMap<>();
         scopedServiceProvider = new HashMap<>();
-        staticServices.put(ICookieManager.class, new CookieManager());
+        staticServices.put(ICookieManager.class, new CookieManager((HttpExchange)staticServices.get(HttpExchange.class)));
         sessionCount = 0;
     }
 
@@ -45,7 +45,7 @@ public class ServiceProvider {
             return null;
         }
 
-        long sessionId = cookieManager.getSessionId(exchange);
+        long sessionId = cookieManager.getSessionId();
         ServiceProvider serviceProvider;
 
         if (sessionId != -1 && (serviceProvider = scopedServiceProvider.get(sessionId)) != null) {
@@ -56,7 +56,7 @@ public class ServiceProvider {
         serviceProvider = new ServiceProvider(exchange, sessionCount);
         scopedServiceProvider.put(sessionCount, serviceProvider);
 
-        cookieManager.setCookie(exchange, "sessionId", sessionCount);
+        cookieManager.setCookie("sessionId", sessionCount);
 
         ++sessionCount;
 

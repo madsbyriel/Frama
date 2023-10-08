@@ -8,6 +8,8 @@ src/service_provider/ServiceProvider.java
 src/service_provider/ServiceProvider2.java
 src/services/cookies/CookieManager.java
 src/services/cookies/ICookieManager.java
+src/services/cookies/ITester.java
+src/services/cookies/Tester.java
 src/server/Server.java
 src/router/Page.java
 src/router/Route.java
