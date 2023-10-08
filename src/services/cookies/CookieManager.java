@@ -15,6 +15,7 @@ public class CookieManager implements ICookieManager {
     @Override
     public long getSessionId() {
         String cookieVal = getCookieValue("sessionId");
+        System.out.println("COOKIE: " + cookieVal);
         if (cookieVal == null) return -1;
 
         try {
@@ -53,6 +54,7 @@ public class CookieManager implements ICookieManager {
 
     @Override
     public void setCookie(String name, Object obj) {
+        System.out.println("Setting: " + name + " : " + obj.toString());
         List<String> cookies = exchange.getResponseHeaders().get("Set-Cookie");
         if (cookies == null) {
             cookies = new ArrayList<>();

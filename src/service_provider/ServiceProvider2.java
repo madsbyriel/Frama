@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sun.net.httpserver.HttpExchange;
+
+import services.cookies.CookieManager;
+import services.cookies.ICookieManager;
+
 public class ServiceProvider2 implements IServiceProvider {
     private static Map<Class<?>, Class<?>> staticServiceClasses;
     private static Map<Class<?>, Class<?>> scopedServiceClasses;
@@ -18,7 +23,8 @@ public class ServiceProvider2 implements IServiceProvider {
     private Map<Class<?>, Object> scopedServiceObjects;
     private Map<Class<?>, Object> transientServiceObjects;
 
-    private static int maximumRecursionDepth = 10;
+    private static Map<Long, IServiceProvider> allServices;
+    private static Long sessionCount;
 
     static {
         staticServiceClasses = new HashMap<>();
@@ -27,12 +33,33 @@ public class ServiceProvider2 implements IServiceProvider {
 
         staticServiceObjects = new HashMap<>();
 
-        maximumRecursionDepth = 10;
+        allServices = new HashMap<>();
+
+        sessionCount = 0L;
     }
 
-    public ServiceProvider2() {
+    private ServiceProvider2() {
         this.scopedServiceObjects = new HashMap<>();
         this.transientServiceObjects = new HashMap<>();
+    }
+
+    public static IServiceProvider getServiceProvide(HttpExchange exchange) {
+        IServiceProvider serviceProvider = null;
+        ICookieManager cookieManager = new CookieManager(exchange);
+        
+        Long sessionId = cookieManager.getSessionId();
+        if (sessionId == -1) {
+            cookieManager.setCookie("sessionId", sessionCount);
+            serviceProvider = new ServiceProvider2();
+            allServices.put(sessionCount++, serviceProvider);
+            return serviceProvider;
+        }
+
+        if ((serviceProvider = allServices.get(sessionId)) == null) {
+            System.out.println("Couldn't find service from session: " + sessionId);
+        }
+
+        return serviceProvider;
     }
 
     @Override
@@ -103,7 +130,7 @@ public class ServiceProvider2 implements IServiceProvider {
         return getFirstConstructor(constructors, availableInterfaces);
     }
 
-    private List<Object> buildParamsFromParamTypes(Class<?> implementation, int recDepth, Map<Class<?>, Class<?>>[] interfaceMaps, Map<Class<?>, Object>[] objectMaps, Constructor<?> constructor) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    private List<Object> buildParamsFromParamTypes(Class<?> implementation, Map<Class<?>, Class<?>>[] interfaceMaps, Map<Class<?>, Object>[] objectMaps, Constructor<?> constructor) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         List<Object> parameters = new ArrayList<>();
         for (Class<?> paramType : constructor.getParameterTypes()) {
             Object parameter  = null;
@@ -123,7 +150,7 @@ public class ServiceProvider2 implements IServiceProvider {
                     System.out.println("Didn't find an implementation for interface: " + paramType);
                     return null;
                 }
-                parameter = buildObjectFromMaps(implementingType, recDepth + 1, interfaceMaps, objectMaps);
+                parameter = buildObjectFromMaps(implementingType, interfaceMaps, objectMaps);
                 mapToAddObjectTo.put(paramType, parameter);
             }
 
@@ -141,9 +168,7 @@ public class ServiceProvider2 implements IServiceProvider {
         return implementation;
     }
 
-    private Object buildObjectFromMaps(Class<?> implementation, int recDepth, Map<Class<?>, Class<?>>[] interfaceMaps, Map<Class<?>, Object>[] objectMaps) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        System.out.println("Trying to build: " + implementation.getName());
-
+    private Object buildObjectFromMaps(Class<?> implementation, Map<Class<?>, Class<?>>[] interfaceMaps, Map<Class<?>, Object>[] objectMaps) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Constructor<?> constructor = getConstructorFromServiceInterfaces(implementation, interfaceMaps);
         
         if (constructor == null) {
@@ -152,7 +177,7 @@ public class ServiceProvider2 implements IServiceProvider {
             return null;
         }
 
-        List<Object> parameters = buildParamsFromParamTypes(implementation, recDepth, interfaceMaps, objectMaps, constructor);
+        List<Object> parameters = buildParamsFromParamTypes(implementation, interfaceMaps, objectMaps, constructor);
 
         Object obj = constructor.newInstance(parameters.toArray(new Object[0]));
 
@@ -162,29 +187,25 @@ public class ServiceProvider2 implements IServiceProvider {
         }
         if (!implementation.isInstance(obj)) {
             System.out.println("Resulting object (" + obj.getClass().getName() + ") is not an instance of implementing class (" + implementation.getName() + ").");
-            System.out.println("Object's class loader: " + obj.getClass().getClassLoader());
-            System.out.println("Implementation's class loader: " + implementation.getClassLoader());
             return null;
         }
-
-        System.out.println("Successfully built: " + implementation.getName());
 
         return obj;
     }
 
     @SuppressWarnings("unchecked")
     private <T> T buildStaticObject(Class<T> implementation) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return (T) buildObjectFromMaps(implementation, 0, new Map[] { staticServiceClasses }, new Map[] { staticServiceObjects });
+        return (T) buildObjectFromMaps(implementation, new Map[] { staticServiceClasses }, new Map[] { staticServiceObjects });
     }
     
     @SuppressWarnings("unchecked")
     private <T> T buildScopedObject(Class<T> implementation) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return (T) buildObjectFromMaps(implementation, 0, new Map[] { staticServiceClasses, scopedServiceClasses }, new Map[] { staticServiceObjects, scopedServiceObjects });
+        return (T) buildObjectFromMaps(implementation, new Map[] { staticServiceClasses, scopedServiceClasses }, new Map[] { staticServiceObjects, scopedServiceObjects });
     }
     
     @SuppressWarnings("unchecked")
     private <T> T buildTransientObject(Class<T> implementation) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        return (T) buildObjectFromMaps(implementation, 0, new Map[] { staticServiceClasses, scopedServiceClasses, transientServiceClasses }, new Map[] { staticServiceObjects, scopedServiceObjects,  transientServiceObjects });
+        return (T) buildObjectFromMaps(implementation, new Map[] { staticServiceClasses, scopedServiceClasses, transientServiceClasses }, new Map[] { staticServiceObjects, scopedServiceObjects,  transientServiceObjects });
     }
 
     @Override

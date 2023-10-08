@@ -15,11 +15,9 @@ import services.cookies.ICookieManager;
 
 public class Server {
     private HttpServer server;
-    private IServiceProvider serviceProvider;
     
     public Server(String hostname, int port, int backlog) throws IOException {
         this.server = HttpServer.create(new InetSocketAddress(hostname, port), backlog);
-        this.serviceProvider = new ServiceProvider2();
     }
 
     public void startServer() {
@@ -28,11 +26,17 @@ public class Server {
     }
 
     private void routeHandler(HttpExchange exchange) {
+        IServiceProvider pageServiceProvider = ServiceProvider2.getServiceProvide(exchange);
+
+        pageServiceProvider.clearTransientObjects();
+
+        // Add services to the page.
+        pageServiceProvider.addTransientService(HttpExchange.class, HttpExchange.class, exchange);
+        pageServiceProvider.addTransientService(IServiceProvider.class, ServiceProvider2.class, pageServiceProvider);
+        pageServiceProvider.addTransientService(ICookieManager.class, CookieManager.class);
+
+
         try {
-            IServiceProvider pageServiceProvider = new ServiceProvider2();
-            pageServiceProvider.addTransientService(HttpExchange.class, HttpExchange.class, exchange);
-            pageServiceProvider.addTransientService(IServiceProvider.class, ServiceProvider2.class);
-            pageServiceProvider.addTransientService(ICookieManager.class, CookieManager.class);
             Page page = Router.getPage(pageServiceProvider, exchange.getRequestURI().getPath());
             page.servePage();
         } catch (Exception e) {
