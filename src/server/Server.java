@@ -8,10 +8,10 @@ import com.sun.net.httpserver.HttpServer;
 
 import router.Page;
 import router.Router;
-import service_provider.IServiceProvider;
-import service_provider.ServiceProvider2;
 import services.cookies.CookieManager;
 import services.cookies.ICookieManager;
+import services.service_provider.IServiceProvider;
+import services.service_provider.ServiceProvider2;
 
 public class Server {
     private HttpServer server;
@@ -26,7 +26,7 @@ public class Server {
     }
 
     private void routeHandler(HttpExchange exchange) {
-        IServiceProvider pageServiceProvider = ServiceProvider2.getServiceProvide(exchange);
+        IServiceProvider pageServiceProvider = ServiceProvider2.getServiceProvider(exchange);
 
         pageServiceProvider.clearTransientObjects();
 

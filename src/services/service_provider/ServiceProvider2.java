@@ -1,4 +1,4 @@
-package service_provider;
+package services.service_provider;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -25,6 +25,7 @@ public class ServiceProvider2 implements IServiceProvider {
 
     private static Map<Long, IServiceProvider> allServices;
     private static Long sessionCount;
+    private Long sessionId;
 
     static {
         staticServiceClasses = new HashMap<>();
@@ -43,15 +44,19 @@ public class ServiceProvider2 implements IServiceProvider {
         this.transientServiceObjects = new HashMap<>();
     }
 
-    public static IServiceProvider getServiceProvide(HttpExchange exchange) {
+    public static IServiceProvider getServiceProvider(HttpExchange exchange) {
         IServiceProvider serviceProvider = null;
         ICookieManager cookieManager = new CookieManager(exchange);
         
         Long sessionId = cookieManager.getSessionId();
         if (sessionId == -1) {
             cookieManager.setCookie("sessionId", sessionCount);
+            
             serviceProvider = new ServiceProvider2();
+            serviceProvider.setSessionId(sessionCount);
+            
             allServices.put(sessionCount++, serviceProvider);
+            
             return serviceProvider;
         }
 
@@ -296,5 +301,15 @@ public class ServiceProvider2 implements IServiceProvider {
         for (var entry : transientServiceClasses.entrySet()) {
             System.out.println("\t" + entry.getKey() + " : " + entry.getValue());
         }
+    }
+
+    @Override
+    public Long getSessionId() {
+        return sessionId;
+    }
+
+    @Override
+    public void setSessionId(Long id) {
+        sessionId = id;
     }
 }

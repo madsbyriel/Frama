@@ -2,16 +2,13 @@ package router;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import service_provider.IServiceProvider;
-import service_provider.ServiceProvider;
-import service_provider.ServiceProvider2;
+import services.service_provider.IServiceProvider;
 
 public class Router {
     private static Map<String, Class<? extends Page>> pageClasses;
