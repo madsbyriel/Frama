@@ -30,7 +30,6 @@ public class Server {
     private void routeHandler(HttpExchange exchange) {
         try {
             IServiceProvider pageServiceProvider = new ServiceProvider2();
-            pageServiceProvider.addTransientService(HttpExchange.class, HttpExchange.class, exchange);
             pageServiceProvider.addTransientService(IServiceProvider.class, ServiceProvider2.class);
             pageServiceProvider.addTransientService(ICookieManager.class, CookieManager.class);
             Page page = Router.getPage(pageServiceProvider, exchange.getRequestURI().getPath());

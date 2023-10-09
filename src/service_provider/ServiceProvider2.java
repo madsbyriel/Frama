@@ -18,16 +18,12 @@ public class ServiceProvider2 implements IServiceProvider {
     private Map<Class<?>, Object> scopedServiceObjects;
     private Map<Class<?>, Object> transientServiceObjects;
 
-    private static int maximumRecursionDepth = 10;
-
     static {
         staticServiceClasses = new HashMap<>();
         scopedServiceClasses = new HashMap<>();
         transientServiceClasses = new HashMap<>();
 
         staticServiceObjects = new HashMap<>();
-
-        maximumRecursionDepth = 10;
     }
 
     public ServiceProvider2() {
@@ -209,16 +205,6 @@ public class ServiceProvider2 implements IServiceProvider {
     public <T> void addTransientService(Class<T> interfaze, Class<? extends T> clazz) {
         if (interfaze.isAssignableFrom(clazz)) {
             transientServiceClasses.put(interfaze, clazz);
-            return;
-        }
-        System.out.println("Didn't add Service, class does not implement interface.");
-    }
-
-    @Override
-    public <T> void addTransientService(Class<T> interfaze, Class<? extends T> clazz, Object object) {
-        if (interfaze.isAssignableFrom(clazz) && clazz.isInstance(object)) {
-            transientServiceClasses.put(interfaze, clazz);
-            transientServiceObjects.put(interfaze, object);
             return;
         }
         System.out.println("Didn't add Service, class does not implement interface.");
