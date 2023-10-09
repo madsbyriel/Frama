@@ -9,7 +9,11 @@ import com.sun.net.httpserver.HttpExchange;
 
 import router.Page;
 import router.Route;
+<<<<<<< HEAD
 import service_provider.IServiceProvider;
+=======
+import services.service_provider.IServiceProvider;
+>>>>>>> 7c2da9e29ea916b558a9d792f2d156b6c486925b
 
 @Route( path = "/debug")
 public class DebugPage implements Page {
@@ -28,7 +32,9 @@ public class DebugPage implements Page {
         List<Object> debugList = new ArrayList<>();
         debugList.add("PATH: " + uri.getPath());
         debugList.add("QUERY: " + uri.getQuery());
-        debugList.add("SessionId: " + serviceProvider);
+        debugList.add("SessionId: " + serviceProvider.getSessionId());
+        debugList.add("Service Provider: " + serviceProvider);
+
 
         String response = "";
         for (Object obj : debugList) {
