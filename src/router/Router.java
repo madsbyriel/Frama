@@ -37,7 +37,7 @@ public class Router {
     private static List<String> getAllClassPaths() {
         List<String> classPaths = new ArrayList<>();
         String cwd = System.getProperty("user.dir");
-        String cp = "\\out";
+        String cp = "/out";
         Stack<File> dirStack = new Stack<>();
         dirStack.push(new File(cwd + cp));
         while (dirStack.size() > 0)  {
