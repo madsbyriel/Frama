@@ -27,7 +27,7 @@ public class Main {
 
         Server server = null;
         try {
-            server = new Server("192.168.1.243", 31415, 20);
+            server = new Server("192.168.1.203", 31415, 20);
         } catch (IOException e) {
             e.printStackTrace();
             return;
