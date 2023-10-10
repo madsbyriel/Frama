@@ -2,19 +2,28 @@ import java.io.IOException;
 
 import router.Router;
 import server.Server;
-import service_provider.IServiceProvider;
-import service_provider.ServiceProvider3;
-import services.cookies.ITester;
-import services.cookies.Tester;
+import services.Context;
+import services.cookies.CookieManager;
+import services.cookies.ICookieManager;
+import services.service_provider.IServiceProvider;
+import services.service_provider.ServiceProvider3;
+import services.testservices.Scop;
+import services.testservices.Stat;
+import services.testservices.Trans;
 
 public class Main {
     public static void main(String[] args) {
-        IServiceProvider serviceProvider  = ServiceProvider3.getServiceProvider(0l);
-        serviceProvider.addStaticService(ITester.class, Tester.class);
-        ITester tester = serviceProvider.getService(ITester.class);
+        IServiceProvider serviceProvider = ServiceProvider3.getEmptyService();
+        serviceProvider.addTransientService(Context.class, Context.class);
+        serviceProvider.addTransientService(ICookieManager.class, CookieManager.class);
 
-        System.out.println(tester);
-        /*Router.initializeRouter();
+        // Testing purposes:
+        serviceProvider.addScopedService(Scop.class, Scop.class);
+        serviceProvider.addStaticService(Stat.class, Stat.class);
+        serviceProvider.addTransientService(Trans.class, Trans.class);
+
+
+        Router.initializeRouter();
 
         Server server = null;
         try {
@@ -25,6 +34,5 @@ public class Main {
         }
 
         server.startServer();
-        */
     }
 }

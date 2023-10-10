@@ -5,11 +5,17 @@ import java.util.List;
 
 import com.sun.net.httpserver.HttpExchange;
 
+import services.Context;
+
 public class CookieManager implements ICookieManager {
     private HttpExchange exchange;
 
     public CookieManager(HttpExchange exchange) {
         this.exchange = exchange;
+    }
+
+    public CookieManager(Context context) {
+        this.exchange = context.getExchange();
     }
 
     @Override

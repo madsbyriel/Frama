@@ -8,10 +8,9 @@ import com.sun.net.httpserver.HttpServer;
 
 import router.Page;
 import router.Router;
-import services.cookies.CookieManager;
-import services.cookies.ICookieManager;
+import services.Context;
 import services.service_provider.IServiceProvider;
-import services.service_provider.ServiceProvider2;
+import services.service_provider.ServiceProvider3;
 
 public class Server {
     private HttpServer server;
@@ -26,25 +25,23 @@ public class Server {
     }
 
     private void routeHandler(HttpExchange exchange) {
-        IServiceProvider pageServiceProvider = ServiceProvider2.getServiceProvider(exchange);
-
-        pageServiceProvider.clearTransientObjects();
-
-        // Add services to the page.
-        pageServiceProvider.addTransientService(HttpExchange.class, HttpExchange.class, exchange);
-        pageServiceProvider.addTransientService(IServiceProvider.class, ServiceProvider2.class, pageServiceProvider);
-        pageServiceProvider.addTransientService(ICookieManager.class, CookieManager.class);
-
+        IServiceProvider serviceProvider = ServiceProvider3.getServiceProvider(exchange);
+        
+        serviceProvider.clearTransientObjects();
+        Context context = serviceProvider.getService(Context.class);
+        context.setExchange(exchange);
 
         try {
-            IServiceProvider pageServiceProvider = new ServiceProvider2();
-            pageServiceProvider.addTransientService(HttpExchange.class, HttpExchange.class, exchange);
-            pageServiceProvider.addTransientService(IServiceProvider.class, ServiceProvider2.class);
-            pageServiceProvider.addTransientService(ICookieManager.class, CookieManager.class);
-            Page page = Router.getPage(pageServiceProvider, exchange.getRequestURI().getPath());
+            Page page = Router.getPage(serviceProvider, exchange.getRequestURI().getPath());
+            if (page == null) {
+                System.out.println("Couldn't create page at route: " + exchange.getRequestURI().getPath());
+                return;
+            }
             page.servePage();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        exchange.close();
     }
 }

@@ -1,4 +1,4 @@
-package testpages;
+package pages;
 
 import java.io.IOException;
 
@@ -6,13 +6,14 @@ import com.sun.net.httpserver.HttpExchange;
 
 import router.Page;
 import router.Route;
+import services.Context;
 
 @Route(path = "*")
 public class Wildcard implements Page {
     private HttpExchange exchange;
 
-    public Wildcard(HttpExchange exchange) {
-        this.exchange = exchange;
+    public Wildcard(Context context) {
+        this.exchange = context.getExchange();
     }
 
     @Override

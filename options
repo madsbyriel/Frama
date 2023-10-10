@@ -1,16 +1,18 @@
 -d out
 src/Main.java
-src/testpages/DebugPage.java
-src/testpages/Index.java
-src/testpages/Wildcard.java
-src/service_provider/IServiceProvider.java
-src/service_provider/ServiceProvider.java
-src/service_provider/ServiceProvider2.java
+src/services/Context.java
+src/services/testservices/Scop.java
+src/services/testservices/Stat.java
+src/services/testservices/Trans.java
+src/services/service_provider/IServiceProvider.java
+src/services/service_provider/ServiceProvider2.java
+src/services/service_provider/ServiceProvider3.java
 src/services/cookies/CookieManager.java
 src/services/cookies/ICookieManager.java
-src/services/cookies/ITester.java
-src/services/cookies/Tester.java
 src/server/Server.java
 src/router/Page.java
 src/router/Route.java
 src/router/Router.java
+src/pages/DebugPage.java
+src/pages/Index.java
+src/pages/Wildcard.java

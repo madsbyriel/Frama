@@ -1,4 +1,4 @@
-package testpages;
+package pages;
 
 import java.io.IOException;
 import java.net.URI;
@@ -9,20 +9,23 @@ import com.sun.net.httpserver.HttpExchange;
 
 import router.Page;
 import router.Route;
-<<<<<<< HEAD
-import service_provider.IServiceProvider;
-=======
-import services.service_provider.IServiceProvider;
->>>>>>> 7c2da9e29ea916b558a9d792f2d156b6c486925b
+import services.Context;
+import services.testservices.Scop;
+import services.testservices.Stat;
+import services.testservices.Trans;
 
 @Route( path = "/debug")
 public class DebugPage implements Page {
     private HttpExchange exchange;
-    private IServiceProvider serviceProvider;
+    private Stat stat;
+    private Trans trans;
+    private Scop scop;
 
-    public DebugPage(HttpExchange exchange, IServiceProvider serviceProvider) {
-        this.exchange = exchange;
-        this.serviceProvider = serviceProvider;
+    public DebugPage(Context context, Stat stat, Trans trans, Scop scop) {
+        this.stat = stat;
+        this.trans = trans;
+        this.scop = scop;
+        this.exchange = context.getExchange();
     }
 
     @Override
@@ -32,9 +35,9 @@ public class DebugPage implements Page {
         List<Object> debugList = new ArrayList<>();
         debugList.add("PATH: " + uri.getPath());
         debugList.add("QUERY: " + uri.getQuery());
-        debugList.add("SessionId: " + serviceProvider.getSessionId());
-        debugList.add("Service Provider: " + serviceProvider);
-
+        debugList.add("Stat object address: " + stat);
+        debugList.add("Trans object address: " + trans);
+        debugList.add("Scop object address: " + scop);
 
         String response = "";
         for (Object obj : debugList) {
@@ -47,7 +50,5 @@ public class DebugPage implements Page {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        exchange.close();
     }
 }

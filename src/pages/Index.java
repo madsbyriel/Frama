@@ -1,25 +1,23 @@
-package testpages;
+package pages;
 
 import java.io.IOException;
 
 import com.sun.net.httpserver.HttpExchange;
 import router.Page;
 import router.Route;
-import services.cookies.ICookieManager;
+import services.Context;
 
 @Route(path = "/")
 public class Index implements Page {
     private HttpExchange exchange;
-    private ICookieManager cookieManager;
 
-    public Index(HttpExchange exchange, ICookieManager cookieManager) {
-        this.exchange = exchange;
-        this.cookieManager = cookieManager;
+    public Index(Context context) {
+        this.exchange = context.getExchange();
     }
 
     @Override
     public void servePage() {
-        String response = "Index " + cookieManager.getSessionId();
+        String response = "Index page!";
         
         try {
             exchange.sendResponseHeaders(200, response.length());
@@ -27,8 +25,6 @@ public class Index implements Page {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        exchange.close();
     }
     
 }

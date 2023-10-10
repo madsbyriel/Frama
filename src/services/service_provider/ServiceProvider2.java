@@ -1,4 +1,4 @@
-package service_provider;
+package services.service_provider;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -18,16 +18,12 @@ public class ServiceProvider2 implements IServiceProvider {
     private Map<Class<?>, Object> scopedServiceObjects;
     private Map<Class<?>, Object> transientServiceObjects;
 
-    private static int maximumRecursionDepth = 10;
-
     static {
         staticServiceClasses = new HashMap<>();
         scopedServiceClasses = new HashMap<>();
         transientServiceClasses = new HashMap<>();
 
         staticServiceObjects = new HashMap<>();
-
-        maximumRecursionDepth = 10;
     }
 
     public ServiceProvider2() {
@@ -215,16 +211,6 @@ public class ServiceProvider2 implements IServiceProvider {
     }
 
     @Override
-    public <T> void addTransientService(Class<T> interfaze, Class<? extends T> clazz, Object object) {
-        if (interfaze.isAssignableFrom(clazz) && clazz.isInstance(object)) {
-            transientServiceClasses.put(interfaze, clazz);
-            transientServiceObjects.put(interfaze, object);
-            return;
-        }
-        System.out.println("Didn't add Service, class does not implement interface.");
-    }
-
-    @Override
     public void clearStaticObjects() {
         staticServiceObjects = new HashMap<>();
     }
@@ -275,5 +261,17 @@ public class ServiceProvider2 implements IServiceProvider {
         for (var entry : transientServiceClasses.entrySet()) {
             System.out.println("\t" + entry.getKey() + " : " + entry.getValue());
         }
+    }
+
+    @Override
+    public Long getSessionId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getSessionId'");
+    }
+
+    @Override
+    public void setSessionId(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setSessionId'");
     }
 }
