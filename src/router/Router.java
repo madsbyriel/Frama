@@ -61,6 +61,7 @@ public class Router {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         for (String cp : classPaths) {
             try {
+                System.out.println(cp);
                 classes.add(classLoader.loadClass(cp));
             } catch (ClassNotFoundException e) {
                 System.out.println("Couldn't add class at class path: " + cp);
