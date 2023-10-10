@@ -49,6 +49,7 @@ public class Router {
                 }
                 String fp = file.getPath();
                 String classPath = fp.substring(cwd.length() + cp.length() + 1, fp.length() - 6).replace("\\", ".");
+                classPath = classPath.replace("/", ".");
                 classPaths.add(classPath);
             }
         }
