@@ -27,7 +27,7 @@ public class OptionsMaker {
             }
         }
 
-        try (FileOutputStream optionsOutputStream = new FileOutputStream(cwd + "\\options", false)) {
+        try (FileOutputStream optionsOutputStream = new FileOutputStream(cwd + "/options", false)) {
             optionsOutputStream.write(optionsText.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
