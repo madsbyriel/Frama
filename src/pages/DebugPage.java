@@ -30,6 +30,8 @@ public class DebugPage implements Page {
 
     @Override
     public void servePage() {
+        Long totalMemory = Runtime.getRuntime().totalMemory() / 1000000;
+        Long freeMemory = Runtime.getRuntime().freeMemory() / 1000000;
         URI uri = exchange.getRequestURI();
         
         List<Object> debugList = new ArrayList<>();
@@ -38,6 +40,8 @@ public class DebugPage implements Page {
         debugList.add("Stat object address: " + stat);
         debugList.add("Trans object address: " + trans);
         debugList.add("Scop object address: " + scop);
+        debugList.add("Total memory: " + totalMemory + "MB");
+        debugList.add("Free memory: " + freeMemory + "MB");
 
         String response = "";
         for (Object obj : debugList) {
