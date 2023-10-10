@@ -8,7 +8,7 @@ public class OptionsMaker {
         String optionsText = "-d out\n";
 
         String cwd = System.getProperty("user.dir");
-        String rootDirPath = cwd + "\\src";
+        String rootDirPath = cwd + "/src";
 
         File rootDir = new File(rootDirPath);
         Stack<File> dirStack = new Stack<>();
