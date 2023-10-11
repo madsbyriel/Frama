@@ -10,9 +10,14 @@ src/services/service_provider/ServiceProvider3.java
 src/services/cookies/CookieManager.java
 src/services/cookies/ICookieManager.java
 src/server/Server.java
-src/router/Page.java
+src/router/IPage.java
 src/router/Route.java
 src/router/Router.java
+src/pages/BasePage.java
 src/pages/DebugPage.java
+src/pages/Favicon.java
 src/pages/Index.java
 src/pages/Wildcard.java
+src/pages/Components/Head.java
+src/pages/Components/IncludeScript.java
+src/pages/Components/Navbar.java

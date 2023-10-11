@@ -2,4 +2,4 @@
 javac OptionsMaker.java
 java OptionsMaker
 javac "@options"
-java "@runargs"
+java -Xmx20M "@runargs"

@@ -1,30 +1,18 @@
 package pages;
 
-import java.io.IOException;
-
-import com.sun.net.httpserver.HttpExchange;
-import router.Page;
 import router.Route;
 import services.Context;
+import services.cookies.ICookieManager;
 
 @Route(path = "/")
-public class Index implements Page {
-    private HttpExchange exchange;
-
-    public Index(Context context) {
-        this.exchange = context.getExchange();
+public class Index extends BasePage {
+    public Index(Context context, ICookieManager cookieManager) {
+        super(context);
     }
 
     @Override
     public void servePage() {
-        String response = "Index page!";
-        
-        try {
-            exchange.sendResponseHeaders(200, response.length());
-            exchange.getResponseBody().write(response.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        sendFileAndHeaders("wwwRoot\\index.html");
     }
     
 }

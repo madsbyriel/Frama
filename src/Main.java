@@ -14,6 +14,7 @@ import services.testservices.Trans;
 public class Main {
     public static void main(String[] args) {
         IServiceProvider serviceProvider = ServiceProvider3.getEmptyService();
+    
         serviceProvider.addTransientService(Context.class, Context.class);
         serviceProvider.addTransientService(ICookieManager.class, CookieManager.class);
 
@@ -27,7 +28,7 @@ public class Main {
 
         Server server = null;
         try {
-            server = new Server("192.168.1.203", 31415, 20);
+            server = new Server("localhost", 31415, 20);
         } catch (IOException e) {
             e.printStackTrace();
             return;

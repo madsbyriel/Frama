@@ -1,5 +1,5 @@
 package router;
 
-public interface Page {
+public interface IPage {
     void servePage();
 }

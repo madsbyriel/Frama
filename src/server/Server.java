@@ -1,13 +1,12 @@
 package server;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-import router.Page;
+import router.IPage;
 import router.Router;
 import services.Context;
 import services.service_provider.IServiceProvider;
@@ -33,7 +32,7 @@ public class Server {
         context.setExchange(exchange);
 
         try {
-            Page page = Router.getPage(serviceProvider, exchange.getRequestURI().getPath());
+            IPage page = Router.getPage(serviceProvider, exchange.getRequestURI().getPath());
             if (page == null) {
                 System.out.println("Couldn't create page at route: " + exchange.getRequestURI().getPath());
                 return;

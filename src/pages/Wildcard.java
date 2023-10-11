@@ -1,31 +1,18 @@
 package pages;
 
-import java.io.IOException;
-
-import com.sun.net.httpserver.HttpExchange;
-
-import router.Page;
 import router.Route;
 import services.Context;
 
 @Route(path = "*")
-public class Wildcard implements Page {
-    private HttpExchange exchange;
+public class Wildcard extends BasePage {
 
     public Wildcard(Context context) {
-        this.exchange = context.getExchange();
+        super(context);
     }
 
     @Override
     public void servePage() {
-        String response = "404 - Not Found";
-        try {
-            exchange.sendResponseHeaders(404, response.length());
-            exchange.getResponseBody().write(response.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("404: " + exchange.getRequestURI().toString());
+        sendFileAndHeaders("wwwRoot\\404.html");
     }
     
 }

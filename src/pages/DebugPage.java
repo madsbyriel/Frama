@@ -7,7 +7,7 @@ import java.util.List;
 
 import com.sun.net.httpserver.HttpExchange;
 
-import router.Page;
+import router.IPage;
 import router.Route;
 import services.Context;
 import services.testservices.Scop;
@@ -15,7 +15,7 @@ import services.testservices.Stat;
 import services.testservices.Trans;
 
 @Route( path = "/debug")
-public class DebugPage implements Page {
+public class DebugPage implements IPage {
     private HttpExchange exchange;
     private Stat stat;
     private Trans trans;

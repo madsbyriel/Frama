@@ -11,25 +11,25 @@ import java.util.Stack;
 import services.service_provider.IServiceProvider;
 
 public class Router {
-    private static Map<String, Class<? extends Page>> pageClasses;
+    private static Map<String, Class<? extends IPage>> pageClasses;
 
     public static void initializeRouter() {
         List<Class<?>> classes = classPathsToClasses(getAllClassPaths());
-        List<Class<? extends Page>> filteredClasses = filterByAnnotationAndInterface(classes, Page.class, Route.class);
+        List<Class<? extends IPage>> filteredClasses = filterByAnnotationAndInterface(classes, IPage.class, Route.class);
 
         Router.pageClasses = new HashMap<>(); 
-        for (Class<? extends Page> c : filteredClasses) {
+        for (Class<? extends IPage> c : filteredClasses) {
             Route routeAnnotation = (Route)c.getAnnotation(Route.class);
             Router.pageClasses.put(routeAnnotation.path(), c);
         }
     }
 
-    public static Page getPage(IServiceProvider provider, String route) throws Exception {
-        Class<? extends Page> pageClass = pageClasses.get(route);
+    public static IPage getPage(IServiceProvider provider, String route) throws Exception {
+        Class<? extends IPage> pageClass = pageClasses.get(route);
         
         if (pageClass == null) pageClass = pageClasses.get("*");
 
-        Page page = provider.createObjectFromServices(pageClass);
+        IPage page = provider.createObjectFromServices(pageClass);
 
         return page;
     }
@@ -62,7 +62,6 @@ public class Router {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
         for (String cp : classPaths) {
             try {
-                System.out.println(cp);
                 classes.add(classLoader.loadClass(cp));
             } catch (ClassNotFoundException e) {
                 System.out.println("Couldn't add class at class path: " + cp);
